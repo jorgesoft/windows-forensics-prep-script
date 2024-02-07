@@ -1,5 +1,18 @@
 # PowerShell script to install forensic tools with error handling
 
+# Define download URLs and installation paths
+$autopsyUrl = "https://github.com/sleuthkit/autopsy/releases/download/autopsy-4.19.1/autopsy-4.19.1-64bit.msi"
+$ftkImagerUrl = "https://ad-zip.s3.amazonaws.com/FTKImager.4.5.0.3.zip"
+$wiresharkUrl = "https://2.na.dl.wireshark.org/win64/Wireshark-4.2.2-x64.exe"
+$volatilityUrl = "https://downloads.volatilityfoundation.org/releases/2.6/volatility_2.6_win64_standalone.zip"
+$sysinternalsSuiteUrl = "https://download.sysinternals.com/files/SysinternalsSuite.zip"
+
+$installPath = "C:\ForensicsTools"
+$sysinternalsPath = "$installPath\SysinternalsSuite"
+
+# Create an installation directory
+New-Item -ItemType Directory -Force -Path $installPath
+
 # Function to log messages
 Function Log-Message {
     Param (
@@ -26,29 +39,6 @@ If (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdenti
 
 # Set Execution Policy
 Set-ExecutionPolicy Bypass -Scope Process -Force
-
-# Define download URLs and installation paths
-$autopsyUrl = "https://github.com/sleuthkit/autopsy/releases/download/autopsy-4.19.1/autopsy-4.19.1-64bit.msi"
-$ftkImagerUrl = "https://ad-zip.s3.amazonaws.com/FTKImager.4.5.0.3.zip"
-$wiresharkUrl = "https://2.na.dl.wireshark.org/win64/Wireshark-4.2.2-x64.exe"
-$volatilityUrl = "https://downloads.volatilityfoundation.org/releases/2.6/volatility_2.6_win64_standalone.zip"
-$sysinternalsSuiteUrl = "https://download.sysinternals.com/files/SysinternalsSuite.zip"
-
-$installPath = "C:\ForensicsTools"
-$sysinternalsPath = "$installPath\SysinternalsSuite"
-
-# Create installation directory
-New-Item -ItemType Directory -Force -Path $installPath
-
-Try {
-    # Download and Install Autopsy
-    $autopsyPath = "$installPath\autopsy-4.19.1-64bit.msi"
-    Invoke-WebRequest -Uri $autopsyUrl -OutFile $autopsyPath
-    Start-Process msiexec.exe -Wait -ArgumentList "/i $autopsyPath /qn /norestart"
-    Log-Message "Autopsy installed successfully."
-} Catch {
-    Log-Message "Failed to install Autopsy. Error: $_" -Type "ERROR"
-}
 
 <# Try {
     # Download and Unzip FTK Imager
@@ -87,6 +77,16 @@ Try {
     Log-Message "Sysinternals Suite installed successfully."
 } Catch {
     Log-Message "Failed to install Sysinternals Suite. Error: $_" -Type "ERROR"
+}
+
+Try {
+    # Download and Install Autopsy
+    $autopsyPath = "$installPath\autopsy-4.19.1-64bit.msi"
+    Invoke-WebRequest -Uri $autopsyUrl -OutFile $autopsyPath
+    Start-Process msiexec.exe -Wait -ArgumentList "/i $autopsyPath /qn /norestart"
+    Log-Message "Autopsy installed successfully."
+} Catch {
+    Log-Message "Failed to install Autopsy. Error: $_" -Type "ERROR"
 }
 
 Log-Message "Installation of forensic tools complete."
